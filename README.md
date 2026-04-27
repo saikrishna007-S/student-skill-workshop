@@ -1,25 +1,64 @@
-# Workshop Platform Frontend
+# Student Skill Workshops — Backend
 
-Frontend application for an online workshop and training management system.
+Express REST API for the workshop management frontend. Data is stored in `data/database.json` (created on first run with seed data).
 
-## Features
+## Requirements
 
-- **Learner:** workshop cards with search/filter, calendar view, optional saved email, registration confirmation message, materials (links + uploads), post-training resources.
-- **Admin:** password sign-in (header `X-Admin-Password`), create workshops, enrollment summary, **all registrations table**, add materials by URL or **file upload**.
-- **UI:** header/footer branding, DM Sans typography, light/dark theme toggle.
-- **Production:** set `VITE_API_URL` for `npm run preview`; dev uses Vite proxy to the backend (`/api` and `/uploads`).
+- Node.js 18+
 
-## Run locally (with API)
+## Install
 
-1. **Backend (required):** in `student skill work shops_backend` run `npm install` then `npm start` (listens on port **4010**).
-2. **Frontend:** in this folder:
-   - `npm install`
-   - `npm run dev`
+```powershell
+cd "c:\Users\sai krishana\Downloads\student skill work shops_backend"
+npm install
+```
 
-Vite proxies `/api` to `http://127.0.0.1:4010`, so open the local URL (for example `http://localhost:5173`) in your browser.
+## Run
 
-If the backend is not running, the app shows an error until you start it.
+```powershell
+npm start
+```
 
-### Production preview without proxy
+The API base URL is `http://localhost:4010` (port **4010** avoids conflicts with other tools that use 4000).
 
-Set `VITE_API_URL=http://localhost:4010` (for example in a `.env` file), run `npm run build` and `npm run preview`, and keep the backend running.
+### Admin authentication
+
+Default admin password is **`admin123`** unless you set **`ADMIN_PASSWORD`** in the environment.
+
+- Sign in from the frontend **Admin** tab uses `POST /api/admin/login`.
+- Protected routes expect header **`X-Admin-Password`** with the same value.
+
+Example (PowerShell):
+
+```powershell
+$env:ADMIN_PASSWORD="MySecret"; npm start
+```
+
+### File uploads
+
+Uploaded files are saved under `uploads/` and served at `http://localhost:4010/uploads/...`.
+
+For auto-reload on file changes (Node 20+ / 22+):
+
+```powershell
+npm run dev
+```
+
+## Endpoints
+
+- `GET /api/health` — health check
+- `GET /api/workshops` — list workshops
+- `POST /api/workshops` — create workshop (body: title, trainer, date, time, duration, level, capacity, description)
+- `GET /api/materials` — list training materials
+- `POST /api/materials` — add material (body: workshopId, name, type, link)
+- `GET /api/post-training-resources` — list post-training resources
+- `POST /api/registrations` — register (body: name, email, workshopId)
+- `GET /api/registrations?email=...` — current user’s registrations
+
+## With the frontend
+
+1. Start this backend: `npm start`
+2. In the frontend folder, start Vite: `npm run dev` (the dev server proxies `/api` to this backend)
+3. Open the URL shown by Vite (for example `http://localhost:5173`)
+
+Optional: set `PORT=5000` in the environment to run on a different port; then update the proxy `target` in the frontend `vite.config.js` to match.
